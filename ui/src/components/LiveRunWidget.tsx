@@ -32,17 +32,14 @@ export function LiveRunWidget({ issueId, companyId }: LiveRunWidgetProps) {
     queryKey: queryKeys.issues.liveRuns(issueId),
     queryFn: () => heartbeatsApi.liveRunsForIssue(issueId),
     enabled: !!issueId,
-    refetchInterval: (query) => {
-      const runs = query.state.data as LiveRunForIssue[] | undefined;
-      return runs?.some((r) => isRunActive(r.status)) ? 3000 : 10_000;
-    },
+    refetchInterval: 15_000,
   });
 
   const { data: activeRun } = useQuery({
     queryKey: queryKeys.issues.activeRun(issueId),
     queryFn: () => heartbeatsApi.activeRunForIssue(issueId),
     enabled: !!issueId,
-    refetchInterval: activeRun ? (isRunActive(activeRun.status) ? 3000 : 10_000) : 10_000,
+    refetchInterval: 15_000,
   });
 
   const runs = useMemo(() => {
