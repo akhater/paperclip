@@ -10,6 +10,7 @@ import {
   Network,
   Boxes,
   Repeat,
+  GitBranch,
   Settings,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -21,11 +22,13 @@ import { useDialog } from "../context/DialogContext";
 import { useCompany } from "../context/CompanyContext";
 import { useSidebar } from "../context/SidebarContext";
 import { heartbeatsApi } from "../api/heartbeats";
+import { instanceSettingsApi } from "../api/instanceSettings";
 import { queryKeys } from "../lib/queryKeys";
 import { useInboxBadge } from "../hooks/useInboxBadge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PluginSlotOutlet } from "@/plugins/slots";
+import { SidebarCompanyMenu } from "./SidebarCompanyMenu";
 import { cn } from "../lib/utils";
 
 export function Sidebar() {
@@ -33,6 +36,10 @@ export function Sidebar() {
   const { selectedCompanyId, selectedCompany } = useCompany();
   const { collapsed } = useSidebar();
   const inboxBadge = useInboxBadge(selectedCompanyId);
+  const { data: experimentalSettings } = useQuery({
+    queryKey: queryKeys.instance.experimentalSettings,
+    queryFn: () => instanceSettingsApi.getExperimental(),
+  });
   const { data: liveRuns } = useQuery({
     queryKey: queryKeys.liveRuns(selectedCompanyId!),
     queryFn: () => heartbeatsApi.liveRunsForCompany(selectedCompanyId!),
@@ -40,6 +47,7 @@ export function Sidebar() {
     refetchInterval: 10_000,
   });
   const liveRunCount = liveRuns?.length ?? 0;
+  const showWorkspacesLink = experimentalSettings?.enableIsolatedWorkspaces === true;
 
   function openSearch() {
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
@@ -51,41 +59,27 @@ export function Sidebar() {
   };
 
   return (
-    <aside className={cn("h-full min-h-0 border-r border-border bg-background flex flex-col", collapsed ? "w-12" : "w-60")}>
-      {/* Top bar */}
+    <aside className="w-60 h-full min-h-0 border-r border-border bg-background flex flex-col">
       <div className={cn("flex items-center shrink-0 h-12", collapsed ? "justify-center px-1" : "gap-1 px-3")}>
         {collapsed ? (
-          selectedCompany?.brandColor ? (
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              {selectedCompany?.brandColor ? (
                 <div
                   className="w-6 h-6 rounded-sm shrink-0 cursor-default"
                   style={{ backgroundColor: selectedCompany.brandColor }}
                 />
-              </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={8}>{selectedCompany?.name ?? "Company"}</TooltipContent>
-            </Tooltip>
-          ) : (
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
+              ) : (
                 <span className="text-sm font-bold text-foreground cursor-default">
                   {(selectedCompany?.name ?? "?")[0]}
                 </span>
-              </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={8}>{selectedCompany?.name ?? "Company"}</TooltipContent>
-            </Tooltip>
-          )
+              )}
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={8}>{selectedCompany?.name ?? "Company"}</TooltipContent>
+          </Tooltip>
         ) : (
           <>
-            {selectedCompany?.brandColor && (
-              <div
-                className="w-4 h-4 rounded-sm shrink-0 ml-1"
-                style={{ backgroundColor: selectedCompany.brandColor }}
-              />
-            )}
-            <span className="flex-1 text-sm font-bold text-foreground truncate pl-1">
-              {selectedCompany?.name ?? "Select company"}
-            </span>
+            <SidebarCompanyMenu />
             <Button
               variant="ghost"
               size="icon-sm"
@@ -100,7 +94,6 @@ export function Sidebar() {
 
       <nav className={cn("flex-1 min-h-0 overflow-y-auto scrollbar-auto-hide flex flex-col gap-4 py-2", collapsed ? "px-1" : "px-3")}>
         <div className="flex flex-col gap-0.5">
-          {/* New Issue button */}
           {collapsed ? (
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
@@ -146,6 +139,9 @@ export function Sidebar() {
           <SidebarNavItem to="/issues" label="Issues" icon={CircleDot} />
           <SidebarNavItem to="/routines" label="Routines" icon={Repeat} />
           <SidebarNavItem to="/goals" label="Goals" icon={Target} />
+          {showWorkspacesLink ? (
+            <SidebarNavItem to="/workspaces" label="Workspaces" icon={GitBranch} />
+          ) : null}
         </SidebarSection>
 
         <SidebarProjects />
