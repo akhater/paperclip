@@ -329,7 +329,7 @@ function IssueDetailLoadingState({
   const identifier = headerSeed?.identifier ?? headerSeed?.id.slice(0, 8) ?? null;
 
   return (
-    <div className={cn("space-y-6", collapsed ? "max-w-2xl mx-auto" : "max-w-3xl")}>
+    <div className={cn("space-y-6", collapsed ? "max-w-4xl mx-auto" : "max-w-3xl")}>
       <div className="space-y-3">
         <Skeleton className="h-3 w-40" />
 
@@ -2215,7 +2215,7 @@ export function IssueDetail() {
   );
 
   return (
-    <div className={cn("space-y-6", collapsed ? "max-w-2xl mx-auto" : "max-w-3xl")}>
+    <div className={cn("space-y-6", collapsed ? "max-w-4xl mx-auto" : "max-w-3xl")}>
       {/* Parent chain breadcrumb */}
       {ancestors.length > 0 && (
         <nav className="flex items-center gap-1 text-xs text-muted-foreground flex-wrap">

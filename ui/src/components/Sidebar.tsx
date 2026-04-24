@@ -59,7 +59,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-60 h-full min-h-0 border-r border-border bg-background flex flex-col">
+    <aside className="w-full h-full min-h-0 border-r border-border bg-background flex flex-col">
       <div className={cn("flex items-center shrink-0 h-12", collapsed ? "justify-center px-1" : "gap-1 px-3")}>
         {collapsed ? (
           <Tooltip delayDuration={0}>
