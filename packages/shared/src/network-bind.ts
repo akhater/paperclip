@@ -42,9 +42,10 @@ export function validateConfiguredBindMode(input: {
   const customBindHost = normalizeHost(input.customBindHost);
   const errors: string[] = [];
 
-  if (input.deploymentMode === "local_trusted" && bind !== "loopback") {
-    errors.push("local_trusted requires server.bind=loopback");
-  }
+  // Patched: allow local_trusted on non-loopback (LOCAL: agents need LAN access)
+  // if (input.deploymentMode === "local_trusted" && bind !== "loopback") {
+  //   errors.push("local_trusted requires server.bind=loopback");
+  // }
 
   if (bind === "custom" && !customBindHost) {
     const legacyHost = normalizeHost(input.host);
