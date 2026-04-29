@@ -10,9 +10,24 @@ services:
       PAPERCLIP_HOME: "/paperclip"
       OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
       ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
-      PAPERCLIP_DEPLOYMENT_MODE: "authenticated"
-      PAPERCLIP_DEPLOYMENT_EXPOSURE: "private"
+      PAPERCLIP_DEPLOYMENT_MODE: "local_trusted"
       PAPERCLIP_PUBLIC_URL: "${PAPERCLIP_PUBLIC_URL:-http://localhost:3100}"
+      PAPERCLIP_DEPLOYMENT_EXPOSURE: "private"
       BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}"
     volumes:
       - "${PAPERCLIP_DATA_DIR:-../data/docker-paperclip}:/paperclip"
+      - "${HOME}/.claude/.credentials.json:/paperclip/.claude/.credentials.json:ro"
+      # Hermes agent — binary, venv, config (source + venv read-only, profiles read-write for session/log writes)
+      - "${HOME}/.hermes/hermes-agent:/hermes/hermes-agent:ro"
+      - "${HOME}/.hermes/paperclip-hermes-wrapper.sh:/hermes/paperclip-hermes-wrapper.sh:ro"
+      - "${HOME}/.hermes/.env:/hermes/.env:ro"
+      - "${HOME}/.hermes/profiles/harvey:/hermes/profiles/harvey"
+      # Override Harvey's config.yaml with local terminal backend (no Docker sandbox)
+      - "${HOME}/.hermes/paperclip-harvey-config.yaml:/hermes/profiles/harvey/config.yaml:ro"
+      - "${HOME}/.local/share/uv:/uv-python:ro"
+      # Docker socket — so Hermes agents can spawn sandbox containers
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/usr/bin/docker:/usr/bin/docker:ro"
+      # Patched: allow local_trusted on non-loopback (agents need LAN access)
+      - "/tmp/paperclip-index.js:/app/server/dist/index.js:ro"
+      - "/data/paperclip/packages/shared/src/network-bind.ts:/app/packages/shared/src/network-bind.ts:ro"
