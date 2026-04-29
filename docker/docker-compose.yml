@@ -5,6 +5,7 @@ services:
       POSTGRES_USER: paperclip
       POSTGRES_PASSWORD: paperclip
       POSTGRES_DB: paperclip
+    restart: always
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U paperclip -d paperclip"]
       interval: 2s
@@ -29,12 +30,14 @@ services:
       PAPERCLIP_DEPLOYMENT_EXPOSURE: "private"
       PAPERCLIP_PUBLIC_URL: "${PAPERCLIP_PUBLIC_URL:-http://localhost:3100}"
       BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}"
+    restart: always
     volumes:
-      - paperclip-data:/paperclip
+      - "${PAPERCLIP_DATA_DIR:-/data/paperclip-data}:/paperclip"
+      - "${HOME}/.claude.json:/paperclip/.claude.json"
+      - "${HOME}/.claude:/host-claude:ro"
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   pgdata:
-  paperclip-data:

@@ -28,7 +28,7 @@ const sharedOpts = {
 };
 
 export const logger = pino({
-  level: "debug",
+  level: "warn",
   redact: ["req.headers.authorization"],
 }, pino.transport({
   targets: [
@@ -40,7 +40,7 @@ export const logger = pino({
     {
       target: "pino-pretty",
       options: { ...sharedOpts, colorize: false, destination: logFile, mkdir: true },
-      level: "debug",
+      level: "warn",
     },
   ],
 }));

@@ -1,0 +1,21 @@
+# LOCAL-ONLY override (not in upstream). Auto-loaded by `docker compose`
+# when invoked from this directory. Adds an nginx reverse proxy in front of
+# the `server` service for HTTP/2 multiplexing + gzip + static caching.
+# Existing :3100 binding is intentionally NOT touched — direct access stays
+# alive as a rollback path and so host-side cron/agents keep working.
+#
+# To remove: delete this file (or `docker compose stop nginx && rm`).
+# Upstream `git pull` does not touch untracked files. Avoid `git clean -fdx`
+# in this directory or this file will be wiped.
+services:
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "10.8.0.6:443:443"
+      - "10.8.0.6:80:80"
+    volumes:
+      - /data/paperclip-data/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /data/paperclip-data/nginx/tls:/etc/nginx/tls:ro
+    depends_on:
+      - server
