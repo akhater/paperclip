@@ -34,7 +34,7 @@ services:
     volumes:
       - "${PAPERCLIP_DATA_DIR:-/data/paperclip-data}:/paperclip"
       - "${PAPERCLIP_HOST_HOME:?PAPERCLIP_HOST_HOME must be set in .env}/.claude.json:/paperclip/.claude.json"
-      - "${PAPERCLIP_HOST_HOME}/.claude:/host-claude:ro"
+      - "${PAPERCLIP_HOST_HOME}/.claude:/paperclip/.claude"
       - "${PAPERCLIP_HOST_HOME}/.codex:/paperclip/.codex"
     depends_on:
       db:
