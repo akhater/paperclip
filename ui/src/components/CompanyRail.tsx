@@ -37,13 +37,13 @@ function SortableCompanyItem({
   company,
   isSelected,
   hasLiveAgents,
-  hasUnreadInbox,
+  hasActionRequired,
   onSelect,
 }: {
   company: Company;
   isSelected: boolean;
   hasLiveAgents: boolean;
-  hasUnreadInbox: boolean;
+  hasActionRequired: boolean;
   onSelect: () => void;
 }) {
   const {
@@ -109,7 +109,7 @@ function SortableCompanyItem({
                   </span>
                 </span>
               )}
-              {hasUnreadInbox && (
+              {hasActionRequired && (
                 <span className="pointer-events-none absolute -bottom-0.5 -right-0.5 z-10 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-background" />
               )}
             </div>
@@ -162,10 +162,17 @@ export function CompanyRail() {
     });
     return result;
   }, [companyIds, liveRunsQueries]);
-  const hasUnreadInboxByCompanyId = useMemo(() => {
+  const hasActionRequiredByCompanyId = useMemo(() => {
     const result = new Map<string, boolean>();
     companyIds.forEach((companyId, index) => {
-      result.set(companyId, (sidebarBadgeQueries[index]?.data?.inbox ?? 0) > 0);
+      const badges = sidebarBadgeQueries[index]?.data;
+      result.set(
+        companyId,
+        ((badges?.failedRuns ?? 0) +
+          (badges?.approvals ?? 0) +
+          (badges?.joinRequests ?? 0) +
+          (badges?.alerts ?? 0)) > 0,
+      );
     });
     return result;
   }, [companyIds, sidebarBadgeQueries]);
@@ -222,7 +229,7 @@ export function CompanyRail() {
                 company={company}
                 isSelected={company.id === highlightedCompanyId}
                 hasLiveAgents={hasLiveAgentsByCompanyId.get(company.id) ?? false}
-                hasUnreadInbox={hasUnreadInboxByCompanyId.get(company.id) ?? false}
+                hasActionRequired={hasActionRequiredByCompanyId.get(company.id) ?? false}
                 onSelect={() => {
                   setSelectedCompanyId(company.id);
                   if (isInstanceRoute) {
